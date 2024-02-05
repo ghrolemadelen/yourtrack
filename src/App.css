@@ -1,0 +1,56 @@
+:root {
+  --color-gray: #555;
+  --shadow: #ccc;
+}
+
+#tracks li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+#tracks li img {
+  width: 40px;
+  margin-right: 1rem;
+  border-radius: 5px;
+  box-shadow: 0 0 8px 0 var(--shadow);
+}
+
+.track {
+  display: flex;
+  align-items: flex-start;
+}
+
+.track-rank {
+  margin-right: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--color-gray);
+}
+
+.song {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.song-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.song-artist {
+  font-size: 0.85rem;
+  color: var(--color-gray);
+}
+
+#trend {
+  width: 360px;
+  padding: 1rem;
+  margin: 1rem auto 5rem;
+  box-shadow: 0 0 8px 0 var(--shadow);
+  border-radius: 10px;
+}
+
+#trend h2 {
+  text-align: center;
+}
