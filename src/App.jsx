@@ -91,28 +91,66 @@ function App() {
   function populateUI(tracks) {
     console.log(tracks);
 
+    let albumImages = [];
+
     tracks = tracks.items;
     const ol = document.getElementById('tracks');
     tracks.forEach((track, index) => {
+      albumImages.push(track.album.images[1].url);
+
+      let min = track.duration_ms / 1000 / 60;
+      let sec = Math.round((min - Math.floor(min)) * 60);
+      min = Math.floor(min);
       const li = document.createElement('li');
       li.innerHTML = `
       <div class="track">
         <span class="track-rank">${index + 1}</span>
         <img src="${track.album.images[1].url}" /> 
-        <div class="song">  
-          <span class="song-title">${track.name}</span>
-          <span class="song-artist">${track.artists[0].name}</span>
+        <div class="wrapper">
+          <div class="song">  
+            <span class="song-title">${track.name}</span>
+            <span class="song-artist">${track.artists[0].name}</span>
+          </div>
+          <div class="song-duration">${min}:${sec
+        .toString()
+        .padStart(2, '0')}</div>
         </div>
       </div>`;
       ol.append(li);
     });
+
+    const bgDiv = document.getElementById('background');
+    albumImages = [
+      ...albumImages,
+      ...albumImages,
+      ...albumImages,
+      ...albumImages,
+    ];
+    albumImages.forEach((url) => {
+      const img = document.createElement('img');
+      img.setAttribute('src', url);
+      img.setAttribute('loading', 'lazy');
+      bgDiv.append(img);
+    });
   }
 
   return (
-    <section id='trend'>
-      <h2> Top {limit} tracks</h2>
-      <ol id='tracks'></ol>
-    </section>
+    <>
+      <div id='background'></div>
+      <section id='trend'>
+        <h2> TOP {limit} TRACKS</h2>
+        <ol id='tracks'></ol>
+        <div className='footer'>
+          Trendify by{' '}
+          <a
+            href='https://github.com/rolemadelen'
+            target='_blank'
+            rel='noopener noreferrer'>
+            Jii Yoo
+          </a>
+        </div>
+      </section>
+    </>
   );
 }
 

@@ -1,19 +1,29 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
 :root {
   --color-gray: #555;
+  --color-white: #eee;
   --shadow: #ccc;
+}
+
+#tracks {
+  margin-bottom: 2rem;
 }
 
 #tracks li {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 #tracks li img {
   width: 40px;
   margin-right: 1rem;
   border-radius: 5px;
-  box-shadow: 0 0 8px 0 var(--shadow);
+  box-shadow: 0 0 16px 0 var(--shadow);
 }
 
 .track {
@@ -22,35 +32,95 @@
 }
 
 .track-rank {
-  margin-right: 1.5rem;
-  font-size: 0.85rem;
-  color: var(--color-gray);
+  width: 20px;
+  margin: auto 1rem;
+  font-size: 14px;
 }
 
 .song {
   display: flex;
   flex-direction: column;
-  line-height: 1.15;
+}
+
+.song > span {
+  display: block;
 }
 
 .song-title {
-  font-size: 1rem;
+  width: 12rem;
+  font-size: 15px;
   font-weight: 600;
+  white-space: nowrap;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
 }
 
 .song-artist {
-  font-size: 0.85rem;
-  color: var(--color-gray);
+  font-size: 12px;
+}
+
+.song-duration {
+  font-size: 12px;
 }
 
 #trend {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
   width: 360px;
   padding: 1rem;
-  margin: 1rem auto 5rem;
+  margin: auto auto;
   box-shadow: 0 0 8px 0 var(--shadow);
   border-radius: 10px;
+
+  color: var(--color-white);
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 1;
 }
 
 #trend h2 {
   text-align: center;
+  margin-bottom: 2rem;
+}
+
+.wrapper {
+  width: 15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#background {
+  height: 100dvh;
+  display: flex;
+  flex-wrap: wrap;
+  position: absolute;
+  justify-content: space-evenly;
+  overflow: hidden;
+
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+#background img {
+  margin: 0.5vw;
+  border-radius: min(10px, 1vw);
+  min-width: 250px;
+  min-height: 250px;
+  width: 15vw;
+  height: 15vw;
+  opacity: 0.5;
+}
+
+.footer {
+  text-align: center;
+  font-size: 12px;
+}
+
+.footer a {
+  color: inherit;
 }
