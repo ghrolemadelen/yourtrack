@@ -1,20 +1,26 @@
 import { useEffect } from 'react';
 import './App.css';
+import { exportAsImage } from './exportAsImage';
+import { useRef } from 'react';
 
 function App() {
   const clientId = import.meta.env.VITE_CLIENT_ID;
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
   const limit = 10;
+  const exportRef = useRef(null);
+  const tok = useRef(null);
+  let currentlyPlayingAudio = useRef(null);
 
   useEffect(() => {
     if (!code) {
       redirectToAuthCodeFlow();
     } else {
       (async function () {
-        const accessToken = await getAccessToken();
-        const profile = await fetchProfile(accessToken);
+        const token = await getAccessToken();
+        const profile = await fetchProfile(token);
         populateUI(profile);
+        tok.current = token;
       })();
     }
   }, []);
@@ -29,7 +35,10 @@ function App() {
     params.append('client_id', clientId);
     params.append('response_type', 'code');
     params.append('redirect_uri', 'http://localhost:5173/callback');
-    params.append('scope', 'user-read-private user-read-email user-top-read');
+    params.append(
+      'scope',
+      'user-read-private user-read-email user-top-read streaming'
+    );
     params.append('code_challenge_method', 'S256');
     params.append('code_challenge', challenge);
 
@@ -88,6 +97,29 @@ function App() {
     return await result.json();
   }
 
+  async function playAudioPreview(id) {
+    const result = await fetch(`https://api.spotify.com/v1/tracks/${id}`, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${tok.current}` },
+    });
+
+    return await result.json();
+  }
+
+  function playAudio(url) {
+    const audio = new Audio(url);
+    audio.play();
+    return audio;
+  }
+
+  function stopAudio() {
+    const audio = currentlyPlayingAudio.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+  }
+
   function populateUI(tracks) {
     console.log(tracks);
 
@@ -97,11 +129,11 @@ function App() {
     const ol = document.getElementById('tracks');
     tracks.forEach((track, index) => {
       albumImages.push(track.album.images[1].url);
-
       let min = track.duration_ms / 1000 / 60;
       let sec = Math.round((min - Math.floor(min)) * 60);
       min = Math.floor(min);
       const li = document.createElement('li');
+      li.setAttribute('data-id', track.id);
       li.innerHTML = `
       <div class="track">
         <span class="track-rank">${index + 1}</span>
@@ -116,6 +148,15 @@ function App() {
         .padStart(2, '0')}</div>
         </div>
       </div>`;
+      li.addEventListener('click', async (e) => {
+        console.log('Here: ', tok);
+        const audioJSON = await playAudioPreview(e.currentTarget.dataset.id);
+        const audioUrl = audioJSON.preview_url;
+
+        stopAudio();
+
+        currentlyPlayingAudio.current = playAudio(audioUrl);
+      });
       ol.append(li);
     });
 
@@ -134,10 +175,18 @@ function App() {
     });
   }
 
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      stopAudio(currentlyPlayingAudio.current);
+    }
+  });
+
   return (
     <>
       <div id='background'></div>
-      <section id='trend'>
+      <section
+        ref={exportRef}
+        id='trend'>
         <h2> TOP {limit} TRACKS</h2>
         <ol id='tracks'></ol>
         <div className='footer'>
@@ -150,6 +199,11 @@ function App() {
           </a>
         </div>
       </section>
+      <div>
+        <button onClick={() => exportAsImage(exportRef.current, 'test')}>
+          Save as Image
+        </button>
+      </div>
     </>
   );
 }
