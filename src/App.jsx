@@ -4,7 +4,7 @@ import { exportAsImage } from './exportAsImage';
 import { useRef } from 'react';
 
 function App() {
-  const clientId = process.env.VITE_CLIENT_ID;
+  const clientId = import.meta.env.VITE_CLIENT_ID;
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
   const limit = 10;
@@ -34,7 +34,10 @@ function App() {
     const params = new URLSearchParams();
     params.append('client_id', clientId);
     params.append('response_type', 'code');
-    params.append('redirect_uri', 'http://127.0.0.1:8080/callback');
+    params.append(
+      'redirect_uri',
+      import.meta.env.VITE_REDIRECT_URI || 'http://localhost:5173/callback'
+    );
     params.append('scope', 'user-read-private user-read-email user-top-read');
     params.append('code_challenge_method', 'S256');
     params.append('code_challenge', challenge);
@@ -71,7 +74,7 @@ function App() {
     params.append('code', code);
     params.append(
       'redirect_uri',
-      process.env.VITE_CLIENT_ID || 'http://localhost:5173/callback'
+      import.meta.env.VITE_REDIRECT_URI || 'http://localhost:5173/callback'
     );
     params.append('code_verifier', verifier);
 
