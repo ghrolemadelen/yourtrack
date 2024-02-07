@@ -69,7 +69,10 @@ function App() {
     params.append('client_id', clientId);
     params.append('grant_type', 'authorization_code');
     params.append('code', code);
-    params.append('redirect_uri', 'http://127.0.0.1:8080/callback');
+    params.append(
+      'redirect_uri',
+      import.meta.env.VITE_CLIENT_ID || 'http://localhost:5173/callback'
+    );
     params.append('code_verifier', verifier);
 
     const result = await fetch('https://accounts.spotify.com/api/token', {
