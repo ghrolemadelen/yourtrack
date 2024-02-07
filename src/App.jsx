@@ -11,6 +11,8 @@ function App() {
   const exportRef = useRef(null);
   const tok = useRef(null);
   let currentlyPlayingAudio = useRef(null);
+  let currentlyPlayingElement = useRef(null);
+  let timeoutRef = useRef(null);
 
   useEffect(() => {
     if (!code) {
@@ -111,13 +113,23 @@ function App() {
 
   function playAudio(url) {
     const audio = new Audio(url);
+    audio.volume = 0.35;
     audio.play();
+
+    timeoutRef.current = setTimeout(() => {
+      stopAudio();
+      currentlyPlayingAudio.current = null;
+      currentlyPlayingElement.current?.classList.remove('active');
+      currentlyPlayingElement.current = null;
+    }, 30000);
+
     return audio;
   }
 
   function stopAudio() {
     const audio = currentlyPlayingAudio.current;
     if (audio) {
+      clearTimeout(timeoutRef.current);
       audio.pause();
       audio.currentTime = 0;
     }
@@ -130,7 +142,7 @@ function App() {
 
     tracks = tracks.items;
     const ol = document.getElementById('tracks');
-    tracks.forEach((track, index) => {
+    tracks.forEach(function (track, index) {
       albumImages.push(track.album.images[1].url);
       let min = track.duration_ms / 1000 / 60;
       let sec = Math.round((min - Math.floor(min)) * 60);
@@ -139,7 +151,12 @@ function App() {
       li.setAttribute('data-id', track.id);
       li.innerHTML = `
       <div class="track">
-        <span class="track-rank">${index + 1}</span>
+        <div class="track-rank">
+        <span class="track-bg"></span>
+        <span class="number">
+        ${index + 1}
+        </span>
+        </div>
         <img src="${track.album.images[1].url}" /> 
         <div class="wrapper">
           <div class="song">  
@@ -151,14 +168,34 @@ function App() {
         .padStart(2, '0')}</div>
         </div>
       </div>`;
-      li.addEventListener('click', async (e) => {
+      li.addEventListener('click', async function () {
         console.log('Here: ', tok);
-        const audioJSON = await playAudioPreview(e.currentTarget.dataset.id);
-        const audioUrl = audioJSON.preview_url;
+
+        let audioUrl = localStorage.getItem(li.dataset.id);
+        if (!audioUrl) {
+          console.log('called!.... saving it to localstorage');
+          const audioJSON = await playAudioPreview(li.dataset.id);
+          audioUrl = audioJSON.preview_url;
+          localStorage.setItem(li.dataset.id, audioUrl);
+        }
 
         stopAudio();
+        if (audioUrl) {
+          if (li === currentlyPlayingElement.current) {
+            li.classList.remove('active');
+            currentlyPlayingAudio.current = null;
+            currentlyPlayingElement.current = null;
+          } else {
+            currentlyPlayingElement.current?.classList.remove('active');
 
-        currentlyPlayingAudio.current = playAudio(audioUrl);
+            li.classList.add('active');
+            currentlyPlayingAudio.current = playAudio(audioUrl);
+            currentlyPlayingElement.current = li;
+          }
+        } else {
+          currentlyPlayingAudio.current = null;
+          currentlyPlayingElement.current = null;
+        }
       });
       ol.append(li);
     });
@@ -193,7 +230,7 @@ function App() {
         <h2> TOP {limit} TRACKS</h2>
         <ol id='tracks'></ol>
         <div className='footer'>
-          Trendify by{' '}
+          YourTrack by{' '}
           <a
             href='https://github.com/rolemadelen'
             target='_blank'

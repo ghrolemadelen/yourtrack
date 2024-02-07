@@ -16,24 +16,28 @@
 }
 
 #tracks li {
+  position: relative;
   display: flex;
   align-items: center;
   margin-bottom: 1.25rem;
+  transition: all 0.2s;
 }
 
 #tracks li:hover {
   cursor: pointer;
 }
 
+#tracks li:hover .track-rank {
+  border-radius: 10px 0 0 10px;
+  width: 50px;
+}
+
 #tracks li img {
-  /* width: 40px;
-  margin-right: 1rem;
-  border-radius: 5px;
-  box-shadow: 0 0 16px 0 var(--shadow); */
   background-color: var(--color-bg);
   padding: 1px 2px;
   width: 38px;
   margin-right: 1rem;
+  border-radius: 0 2px 2px 0;
 }
 
 .track {
@@ -42,9 +46,8 @@
 }
 
 .track-rank {
-  /* width: 20px;
-  margin: auto 1rem;
-  font-size: 14px; */
+  position: relative;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -58,6 +61,42 @@
   color: white;
   font-size: 14px;
   font-weight: 600;
+  overflow: hidden;
+
+  transition: all 0.2s ease;
+}
+
+.track-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-block;
+  width: 150px;
+  height: 100%;
+}
+
+#tracks li.active img {
+  box-shadow: 0 0 5px 0 rgb(156, 156, 156);
+  background-color: #4382ff;
+  /* background-color: rgba(0, 0, 0, 0.5); */
+}
+
+#tracks li.active .track-rank {
+  box-shadow: 0 0 5px 0 rgb(156, 156, 156);
+  border-radius: 10px 0 0 10px;
+  width: 50px;
+}
+
+#tracks li.active .track-bg {
+  background: linear-gradient(to right, #00ff88, #4382ff, #00ff88);
+  animation: nowPlaying 0.6s alternate infinite;
+}
+
+#tracks li.active .number {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  z-index: 999;
+  /* color: var(--color-gray); */
 }
 
 .song {
@@ -153,4 +192,13 @@
 
 .footer a {
   color: inherit;
+}
+
+@keyframes nowPlaying {
+  0% {
+    transform: translateX(0px);
+  }
+  100% {
+    transform: translateX(-35px);
+  }
 }
