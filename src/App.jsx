@@ -4,7 +4,7 @@ import { exportAsImage } from './exportAsImage';
 import { useRef } from 'react';
 
 function App() {
-  const clientId = import.meta.env.VITE_CLIENT_ID;
+  const clientId = process.env.VITE_CLIENT_ID;
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
   const limit = 10;
@@ -71,7 +71,7 @@ function App() {
     params.append('code', code);
     params.append(
       'redirect_uri',
-      import.meta.env.VITE_CLIENT_ID || 'http://localhost:5173/callback'
+      process.env.VITE_CLIENT_ID || 'http://localhost:5173/callback'
     );
     params.append('code_verifier', verifier);
 
