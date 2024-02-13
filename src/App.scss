@@ -9,17 +9,13 @@
   --color-white: #eee;
   --shadow: #ccc;
   --color-bg: rgba(0, 0, 0, 0.8);
-}
-
-#tracks {
-  margin-bottom: 2rem;
+  --primary: #6ec1ff;
 }
 
 #tracks li {
-  position: relative;
   display: flex;
   align-items: center;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   transition: all 0.2s;
 }
 
@@ -127,14 +123,9 @@
 }
 
 #trend {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
+  margin: 3rem;
   width: 360px;
   padding: 1.5rem;
-  margin: auto auto;
   box-shadow: 0 0 8px 0 var(--shadow);
   border-radius: 10px;
 
@@ -142,7 +133,7 @@
   background: linear-gradient(
     45deg,
     #ffffff00,
-    #6ec1ff,
+    var(--primary),
     #ffffffcc,
     transparent
   );
@@ -200,5 +191,112 @@
   }
   100% {
     transform: translateX(-35px);
+  }
+}
+
+// ###################################
+
+.main {
+  display: flex;
+  align-items: center;
+
+  gap: 5rem;
+}
+
+.form-control {
+  display: grid;
+  grid-template-columns: 1em auto;
+  gap: 0.5em;
+
+  line-height: 1.1;
+  font-size: 1.25rem;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+input[type='radio'] {
+  display: grid;
+  place-content: center;
+  margin: 0;
+
+  background-color: #fff;
+
+  font: inherit;
+  width: 1.15em;
+  height: 1.15em;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &::before {
+    content: '';
+    width: 0.65em;
+    height: 0.65em;
+    border-radius: 5px;
+    transform: scale(0);
+    transition: transform 0.15s ease-in-out;
+    box-shadow: inset 1em 1em var(--primary);
+  }
+
+  &:checked {
+    border: 2px solid var(--primary);
+
+    &::before {
+      transform: scale(1);
+    }
+  }
+}
+
+.btn-save {
+  width: 10rem;
+  padding: 1rem;
+
+  border: 2px solid var(--primary);
+  border-radius: 10px;
+  background: transparent;
+
+  font-size: 1.25rem;
+  font-weight: 600;
+
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    cursor: pointer;
+    background-color: var(--primary);
+  }
+
+  &:hover p {
+    filter: invert(1);
+  }
+}
+
+.options {
+  display: flex;
+
+  flex-direction: column;
+  gap: 2rem;
+
+  .themes {
+    width: 15rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    font-size: 1.25rem;
+
+    & > div {
+      display: flex;
+      flex-direction: column;
+
+      gap: 1rem;
+    }
   }
 }

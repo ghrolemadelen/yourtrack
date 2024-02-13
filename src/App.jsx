@@ -1,7 +1,6 @@
-import { useEffect } from 'react';
-import './App.css';
+import { useEffect, useCallback, useRef } from 'react';
 import { exportAsImage } from './exportAsImage';
-import { useRef } from 'react';
+import './App.scss';
 
 function App() {
   const clientId = import.meta.env.VITE_CLIENT_ID;
@@ -14,18 +13,22 @@ function App() {
   let currentlyPlayingElement = useRef(null);
   let timeoutRef = useRef(null);
 
+  const fetchData = useCallback(async () => {
+    const token = await getAccessToken();
+    const profile = await fetchProfile(token);
+    populateUI(profile);
+    tok.current = token;
+  }, []);
+
   useEffect(() => {
+    document.querySelector('#theme-blue').checked = true;
+
     if (!code) {
       redirectToAuthCodeFlow();
     } else {
-      (async function () {
-        const token = await getAccessToken();
-        const profile = await fetchProfile(token);
-        populateUI(profile);
-        tok.current = token;
-      })();
+      fetchData();
     }
-  }, []);
+  }, [code, fetchData]);
 
   async function redirectToAuthCodeFlow() {
     const verifier = generateCodeVerifier(128);
@@ -69,7 +72,6 @@ function App() {
 
   async function getAccessToken() {
     const verifier = localStorage.getItem('verifier');
-
     const params = new URLSearchParams();
     params.append('client_id', clientId);
     params.append('grant_type', 'authorization_code');
@@ -91,7 +93,6 @@ function App() {
   }
 
   async function fetchProfile(token) {
-    console.log(token);
     const result = await fetch(
       `https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=${limit}`,
       {
@@ -113,7 +114,7 @@ function App() {
 
   function playAudio(url) {
     const audio = new Audio(url);
-    audio.volume = 0.35;
+    audio.volume = 0.5;
     audio.play();
 
     timeoutRef.current = setTimeout(() => {
@@ -136,14 +137,9 @@ function App() {
   }
 
   function populateUI(tracks) {
-    console.log(tracks);
-
-    let albumImages = [];
-
     tracks = tracks.items;
     const ol = document.getElementById('tracks');
     tracks.forEach(function (track, index) {
-      albumImages.push(track.album.images[1].url);
       let min = track.duration_ms / 1000 / 60;
       let sec = Math.round((min - Math.floor(min)) * 60);
       min = Math.floor(min);
@@ -169,18 +165,27 @@ function App() {
         </div>
       </div>`;
       li.addEventListener('click', async function () {
-        console.log('Here: ', tok);
+        let item = JSON.parse(localStorage.getItem(li.dataset.id));
 
-        let audioUrl = localStorage.getItem(li.dataset.id);
-        if (!audioUrl) {
+        if (!item) {
+          const now = new Date();
+          const expiryInMinutes = 24 * 60; // 24 hours
+
           console.log('called!.... saving it to localstorage');
           const audioJSON = await playAudioPreview(li.dataset.id);
-          audioUrl = audioJSON.preview_url;
-          localStorage.setItem(li.dataset.id, audioUrl);
+          const audioUrl = audioJSON.preview_url;
+
+          const item = {
+            audioUrl,
+            expiry: now.getTime() + expiryInMinutes * 60 * 1000,
+          };
+
+          localStorage.setItem(li.dataset.id, JSON.stringify(item));
         }
 
+        item = JSON.parse(localStorage.getItem(li.dataset.id));
         stopAudio();
-        if (audioUrl) {
+        if (item.audioUrl) {
           if (li === currentlyPlayingElement.current) {
             li.classList.remove('active');
             currentlyPlayingAudio.current = null;
@@ -189,45 +194,59 @@ function App() {
             currentlyPlayingElement.current?.classList.remove('active');
 
             li.classList.add('active');
-            currentlyPlayingAudio.current = playAudio(audioUrl);
+            currentlyPlayingAudio.current = playAudio(item.audioUrl);
             currentlyPlayingElement.current = li;
           }
         } else {
           currentlyPlayingAudio.current = null;
           currentlyPlayingElement.current = null;
         }
+
+        const now = new Date();
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(li.dataset.id);
+        }
       });
       ol.append(li);
-    });
-
-    const bgDiv = document.getElementById('background');
-    albumImages = [
-      ...albumImages,
-      ...albumImages,
-      ...albumImages,
-      ...albumImages,
-    ];
-    albumImages.forEach((url) => {
-      const img = document.createElement('img');
-      img.setAttribute('src', url);
-      img.setAttribute('loading', 'lazy');
-      bgDiv.append(img);
     });
   }
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      currentlyPlayingElement.current?.classList.remove('active');
       stopAudio(currentlyPlayingAudio.current);
+      currentlyPlayingAudio.current = null;
+      currentlyPlayingElement.current = null;
     }
   });
 
+  const changeTheme = (e) => {
+    const theme = e.target.dataset.theme;
+    const themeColors = {
+      blue: { primary: '#6ec1ff' },
+      red: { primary: '#ff9898' },
+      black: { primary: '#777' },
+      orange: { primary: '#ff8051' },
+      green: { primary: '#7af17a' },
+      purple: { primary: '#e16fe1' },
+    };
+
+    document.documentElement.style.setProperty(
+      '--primary',
+      themeColors[theme].primary
+    );
+    document.documentElement.style.setProperty(
+      '--secondary',
+      themeColors[theme].text
+    );
+  };
+
   return (
-    <>
-      <div id='background'></div>
-      <section
+    <div className='main'>
+      <div
         ref={exportRef}
         id='trend'>
-        <h2> TOP {limit} TRACKS</h2>
+        <h2> YOUR TOP {limit} TRACKS</h2>
         <ol id='tracks'></ol>
         <div className='footer'>
           YourTrack by{' '}
@@ -238,13 +257,95 @@ function App() {
             Jii Yoo
           </a>
         </div>
-      </section>
-      <div>
-        <button onClick={() => exportAsImage(exportRef.current, 'test')}>
-          Save as Image
+      </div>
+      <div className='options'>
+        <h2>Choose a theme</h2>
+        <div className='themes'>
+          <div>
+            <div>
+              <label className='form-control'>
+                <input
+                  type='radio'
+                  name='theme'
+                  id='theme-blue'
+                  data-theme='blue'
+                  onChange={(e) => changeTheme(e)}
+                />
+                Blue
+              </label>
+            </div>
+            <div>
+              <label className='form-control'>
+                <input
+                  type='radio'
+                  name='theme'
+                  id='theme-red'
+                  data-theme='red'
+                  onChange={(e) => changeTheme(e)}
+                />
+                Red
+              </label>
+            </div>
+            <div>
+              <label className='form-control'>
+                <input
+                  type='radio'
+                  name='theme'
+                  id='theme-black'
+                  data-theme='black'
+                  onChange={(e) => changeTheme(e)}
+                />
+                Black
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <div>
+              <label className='form-control'>
+                <input
+                  type='radio'
+                  name='theme'
+                  id='theme-orange'
+                  data-theme='orange'
+                  onChange={(e) => changeTheme(e)}
+                />
+                Orange
+              </label>
+            </div>
+            <div>
+              <label className='form-control'>
+                <input
+                  type='radio'
+                  name='theme'
+                  id='theme-green'
+                  data-theme='green'
+                  onChange={(e) => changeTheme(e)}
+                />
+                Green
+              </label>
+            </div>
+            <div>
+              <label className='form-control'>
+                <input
+                  type='radio'
+                  name='theme'
+                  id='theme-purple'
+                  data-theme='purple'
+                  onChange={(e) => changeTheme(e)}
+                />
+                Purple
+              </label>
+            </div>
+          </div>
+        </div>
+        <button
+          className={'btn-save'}
+          onClick={() => exportAsImage(exportRef.current, 'test')}>
+          <p>Download</p>
         </button>
       </div>
-    </>
+    </div>
   );
 }
 
