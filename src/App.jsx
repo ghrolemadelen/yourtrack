@@ -180,10 +180,9 @@ function App() {
       li.addEventListener('click', async function () {
         let item = JSON.parse(localStorage.getItem(li.dataset.id));
 
-        if (!item) {
+        if (!item || !item.audioUrl || !item.expiry) {
           const now = new Date();
           const expiryInMinutes = 24 * 60; // 24 hours
-
           console.log('called!.... saving it to localstorage');
           const audioJSON = await playAudioPreview(li.dataset.id);
           const audioUrl = audioJSON.preview_url;
