@@ -282,93 +282,114 @@ function App() {
           </a>
         </div>
       </div>
-      <div className='options'>
-        <h2>Choose a theme</h2>
-        <div className='themes'>
-          <div>
+      <div className='section-wrapper'>
+        <div className='options'>
+          <h2>Choose a Theme</h2>
+          <div className='themes'>
             <div>
-              <label className='form-control'>
-                <input
-                  type='radio'
-                  name='theme'
-                  id='theme-red'
-                  data-theme='red'
-                  onChange={(e) => changeTheme(e)}
-                />
-                Red
-              </label>
-            </div>
-            <div>
-              <label className='form-control'>
-                <input
-                  type='radio'
-                  name='theme'
-                  id='theme-green'
-                  data-theme='green'
-                  onChange={(e) => changeTheme(e)}
-                />
-                Green
-              </label>
+              <div>
+                <label className='form-control'>
+                  <input
+                    type='radio'
+                    name='theme'
+                    id='theme-red'
+                    data-theme='red'
+                    onChange={(e) => changeTheme(e)}
+                  />
+                  Red
+                </label>
+              </div>
+              <div>
+                <label className='form-control'>
+                  <input
+                    type='radio'
+                    name='theme'
+                    id='theme-green'
+                    data-theme='green'
+                    onChange={(e) => changeTheme(e)}
+                  />
+                  Green
+                </label>
+              </div>
+
+              <div>
+                <label className='form-control'>
+                  <input
+                    type='radio'
+                    name='theme'
+                    id='theme-purple'
+                    data-theme='purple'
+                    onChange={(e) => changeTheme(e)}
+                  />
+                  Purple
+                </label>
+              </div>
             </div>
 
             <div>
-              <label className='form-control'>
-                <input
-                  type='radio'
-                  name='theme'
-                  id='theme-purple'
-                  data-theme='purple'
-                  onChange={(e) => changeTheme(e)}
-                />
-                Purple
-              </label>
+              <div>
+                <label className='form-control'>
+                  <input
+                    type='radio'
+                    name='theme'
+                    id='theme-orange'
+                    data-theme='orange'
+                    onChange={(e) => changeTheme(e)}
+                  />
+                  Orange
+                </label>
+              </div>
+              <div>
+                <label className='form-control'>
+                  <input
+                    type='radio'
+                    name='theme'
+                    id='theme-blue'
+                    data-theme='blue'
+                    onChange={(e) => changeTheme(e)}
+                  />
+                  Blue
+                </label>
+              </div>
+              <div>
+                <label className='form-control'>
+                  <input
+                    type='radio'
+                    name='theme'
+                    id='theme-black'
+                    data-theme='black'
+                    onChange={(e) => changeTheme(e)}
+                  />
+                  Black
+                </label>
+              </div>
             </div>
           </div>
-
-          <div>
-            <div>
-              <label className='form-control'>
-                <input
-                  type='radio'
-                  name='theme'
-                  id='theme-orange'
-                  data-theme='orange'
-                  onChange={(e) => changeTheme(e)}
-                />
-                Orange
-              </label>
-            </div>
-            <div>
-              <label className='form-control'>
-                <input
-                  type='radio'
-                  name='theme'
-                  id='theme-blue'
-                  data-theme='blue'
-                  onChange={(e) => changeTheme(e)}
-                />
-                Blue
-              </label>
-            </div>
-            <div>
-              <label className='form-control'>
-                <input
-                  type='radio'
-                  name='theme'
-                  id='theme-black'
-                  data-theme='black'
-                  onChange={(e) => changeTheme(e)}
-                />
-                Black
-              </label>
-            </div>
-          </div>
+          <button
+            className={'btn-save'}
+            onClick={() =>
+              exportAsImage(
+                exportRef.current,
+                `yourtrack-${currentDate.toLocaleDateString('en-US')}`
+              )
+            }>
+            <p>Download</p>
+          </button>
         </div>
-        <button
-          className={'btn-save'}
-          onClick={() => exportAsImage(exportRef.current, 'test')}>
-          <p>Download</p>
-        </button>
+        <div className='note'>
+          <ol>
+            <li>
+              Top 10 tracks based on the last 28 days of your listening history.
+            </li>
+            <li>
+              Click a track to play a 30-second preview (some tracks may not
+              have a preview available).
+            </li>
+            <li>
+              To stop the preview, click the track again or press the ESC key.
+            </li>
+          </ol>
+        </div>
       </div>
     </div>
   );
