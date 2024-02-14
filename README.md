@@ -1,8 +1,51 @@
-# React + Vite
+# YourTrack
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![](/public/ogimage.png)
 
-Currently, two official plugins are available:
+YourTrack is a React-based web application that allows you to easily view the top 10 tracks from your last month's history of playing music on Spotify.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
+
+- **Spotify Integration**: YourTrack seamlessly integrates with the Spotify API to fetch your music history.
+- **Top 10 Tracks**: Quickly discover your most-played tracks from the previous month.
+- **30-Second Track Preview**: Click on a track to listen to a 30-second preview directly within the application.
+- **Customizable Themes**: Personalize your experience by choosing from 6 different themes to change the appearance of the application.
+- **Download as Image**: Save your top tracks visualization as an image for easy sharing.
+
+## Deployment
+
+### Clone and Install Dependencies
+
+1. Clone the repository
+
+```sh
+$ git clone https://github.com/yourusername/yourtrack.git
+```
+
+2. Install Dependencies
+
+```sh
+cd yourtrack
+$ pnpm install
+```
+
+### Set Up Spotify API
+
+- Visit the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and create a new application.
+- Obtain your _Client ID_
+- Navigate to the Setting and add your environment in _Redirect URIs_ section.
+- Create a `.env` file in the project root and add:
+  ```env
+  VITE_CLIENT_ID=<client_id>
+  VITE_REDIRECT_URI=<redirect_uri>
+  ```
+
+### Run the Application
+
+```sh
+$ pnpm start
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE.md) file for details.
