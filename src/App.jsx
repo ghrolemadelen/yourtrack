@@ -12,11 +12,15 @@ function App() {
   let currentlyPlayingAudio = useRef(null);
   let currentlyPlayingElement = useRef(null);
   let timeoutRef = useRef(null);
+  const currentDate = new Date();
+  let pastDate = new Date(
+    new Date().setDate(new Date().getDate() - 28)
+  ).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   const fetchData = useCallback(async () => {
     const token = await getAccessToken();
-    const profile = await fetchProfile(token);
-    populateUI(profile);
+    const [userData, profile] = await fetchProfile(token);
+    populateUI(userData, profile);
     tok.current = token;
   }, []);
 
@@ -93,6 +97,11 @@ function App() {
   }
 
   async function fetchProfile(token) {
+    const userData = await fetch(`https://api.spotify.com/v1/me`, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
     const result = await fetch(
       `https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=${limit}`,
       {
@@ -100,7 +109,8 @@ function App() {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
-    return await result.json();
+    return Promise.all([userData.json(), result.json()]);
+    // return await result.json();
   }
 
   async function playAudioPreview(id) {
@@ -136,8 +146,11 @@ function App() {
     }
   }
 
-  function populateUI(tracks) {
+  function populateUI(userData, tracks) {
     tracks = tracks.items;
+    const handle = document.querySelector('span.handle');
+    if (userData)
+      handle.innerHTML = `<a href="${userData.external_urls.spotify}">@${userData.display_name}</a>`;
     const ol = document.getElementById('tracks');
     tracks.forEach(function (track, index) {
       let min = track.duration_ms / 1000 / 60;
@@ -246,7 +259,18 @@ function App() {
       <div
         ref={exportRef}
         id='trend'>
-        <h2> YOUR TOP {limit} TRACKS</h2>
+        <h2>
+          YOUR TRACK - Top 10
+          <div className='info'>
+            <span className='date'>
+              {`${pastDate} - ${currentDate.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+              })}`}
+            </span>
+            <span className='handle'></span>
+          </div>
+        </h2>
         <ol id='tracks'></ol>
         <div className='footer'>
           YourTrack by{' '}
@@ -267,18 +291,6 @@ function App() {
                 <input
                   type='radio'
                   name='theme'
-                  id='theme-blue'
-                  data-theme='blue'
-                  onChange={(e) => changeTheme(e)}
-                />
-                Blue
-              </label>
-            </div>
-            <div>
-              <label className='form-control'>
-                <input
-                  type='radio'
-                  name='theme'
                   id='theme-red'
                   data-theme='red'
                   onChange={(e) => changeTheme(e)}
@@ -291,11 +303,24 @@ function App() {
                 <input
                   type='radio'
                   name='theme'
-                  id='theme-black'
-                  data-theme='black'
+                  id='theme-green'
+                  data-theme='green'
                   onChange={(e) => changeTheme(e)}
                 />
-                Black
+                Green
+              </label>
+            </div>
+
+            <div>
+              <label className='form-control'>
+                <input
+                  type='radio'
+                  name='theme'
+                  id='theme-purple'
+                  data-theme='purple'
+                  onChange={(e) => changeTheme(e)}
+                />
+                Purple
               </label>
             </div>
           </div>
@@ -318,11 +343,11 @@ function App() {
                 <input
                   type='radio'
                   name='theme'
-                  id='theme-green'
-                  data-theme='green'
+                  id='theme-blue'
+                  data-theme='blue'
                   onChange={(e) => changeTheme(e)}
                 />
-                Green
+                Blue
               </label>
             </div>
             <div>
@@ -330,11 +355,11 @@ function App() {
                 <input
                   type='radio'
                   name='theme'
-                  id='theme-purple'
-                  data-theme='purple'
+                  id='theme-black'
+                  data-theme='black'
                   onChange={(e) => changeTheme(e)}
                 />
-                Purple
+                Black
               </label>
             </div>
           </div>
