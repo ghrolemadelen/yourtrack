@@ -1,12 +1,11 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { exportAsImage } from './exportAsImage';
+import { exportAsImage } from '@lib/exportAsImage';
+import { getAccessToken, redirectToAuthCodeFlow, code } from '@lib/auth-pkce';
+import { Note } from '@domain/Note/Note';
 import './App.scss';
+import ThemeButton from './domain/Theme/theme-button';
 
 function App() {
-  const clientId = import.meta.env.VITE_CLIENT_ID;
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('code');
-  const limit = 10;
   const exportRef = useRef(null);
   const tok = useRef(null);
   let currentlyPlayingAudio = useRef(null);
@@ -19,7 +18,7 @@ function App() {
 
   const fetchData = useCallback(async () => {
     const token = await getAccessToken();
-    const [userData, profile] = await fetchProfile(token);
+    const [userData, profile] = await fetchTracks(token);
     populateUI(userData, profile);
     tok.current = token;
   }, []);
@@ -27,90 +26,25 @@ function App() {
   useEffect(() => {
     document.querySelector('#theme-blue').checked = true;
 
-    if (!code) {
-      redirectToAuthCodeFlow();
-    } else {
+    if (code) {
       fetchData();
+    } else {
+      redirectToAuthCodeFlow();
     }
-  }, [code, fetchData]);
+  }, [fetchData]);
 
-  async function redirectToAuthCodeFlow() {
-    const verifier = generateCodeVerifier(128);
-    const challenge = await generateCodeChallenge(verifier);
-
-    localStorage.setItem('verifier', verifier);
-
-    const params = new URLSearchParams();
-    params.append('client_id', clientId);
-    params.append('response_type', 'code');
-    params.append(
-      'redirect_uri',
-      import.meta.env.VITE_REDIRECT_URI || 'http://localhost:5173/callback'
-    );
-    params.append('scope', 'user-read-private user-read-email user-top-read');
-    params.append('code_challenge_method', 'S256');
-    params.append('code_challenge', challenge);
-
-    document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
-  }
-
-  function generateCodeVerifier(length) {
-    let text = '';
-    let possible =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-    for (let i = 0; i < length; ++i) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
-  }
-
-  async function generateCodeChallenge(codeVerifier) {
-    const data = new TextEncoder().encode(codeVerifier);
-    const digest = await window.crypto.subtle.digest('SHA-256', data);
-    return btoa(String.fromCharCode.apply(null, [...new Uint8Array(digest)]))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=+$/, '');
-  }
-
-  async function getAccessToken() {
-    const verifier = localStorage.getItem('verifier');
-    const params = new URLSearchParams();
-    params.append('client_id', clientId);
-    params.append('grant_type', 'authorization_code');
-    params.append('code', code);
-    params.append(
-      'redirect_uri',
-      import.meta.env.VITE_REDIRECT_URI || 'http://localhost:5173/callback'
-    );
-    params.append('code_verifier', verifier);
-
-    const result = await fetch('https://accounts.spotify.com/api/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params,
-    });
-
-    const { access_token } = await result.json();
-    return access_token;
-  }
-
-  async function fetchProfile(token) {
-    const userData = await fetch(`https://api.spotify.com/v1/me`, {
+  async function fetchTracks(token) {
+    const request = {
       method: 'GET',
       headers: { Authorization: `Bearer ${token}` },
-    });
+    };
 
-    const result = await fetch(
-      `https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=${limit}`,
-      {
-        method: 'GET',
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+    const USER_PROFILE_URL = 'https://api.spotify.com/v1/me';
+    const TOP_MONTH_TRACK_URL = `https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=10`;
+
+    const userData = await fetch(USER_PROFILE_URL, request);
+    const result = await fetch(TOP_MONTH_TRACK_URL, request);
     return Promise.all([userData.json(), result.json()]);
-    // return await result.json();
   }
 
   async function playAudioPreview(id) {
@@ -127,12 +61,13 @@ function App() {
     audio.volume = 0.5;
     audio.play();
 
+    const THIRTY_SECONDS = 30 * 1000;
     timeoutRef.current = setTimeout(() => {
       stopAudio();
       currentlyPlayingAudio.current = null;
       currentlyPlayingElement.current?.classList.remove('active');
       currentlyPlayingElement.current = null;
-    }, 30000);
+    }, THIRTY_SECONDS);
 
     return audio;
   }
@@ -247,10 +182,6 @@ function App() {
       '--primary',
       themeColors[theme].primary
     );
-    document.documentElement.style.setProperty(
-      '--secondary',
-      themeColors[theme].text
-    );
   };
 
   return (
@@ -286,82 +217,14 @@ function App() {
           <h2>Choose a Theme</h2>
           <div className='themes'>
             <div>
-              <div>
-                <label className='form-control'>
-                  <input
-                    type='radio'
-                    name='theme'
-                    id='theme-red'
-                    data-theme='red'
-                    onChange={(e) => changeTheme(e)}
-                  />
-                  Red
-                </label>
-              </div>
-              <div>
-                <label className='form-control'>
-                  <input
-                    type='radio'
-                    name='theme'
-                    id='theme-green'
-                    data-theme='green'
-                    onChange={(e) => changeTheme(e)}
-                  />
-                  Green
-                </label>
-              </div>
-
-              <div>
-                <label className='form-control'>
-                  <input
-                    type='radio'
-                    name='theme'
-                    id='theme-purple'
-                    data-theme='purple'
-                    onChange={(e) => changeTheme(e)}
-                  />
-                  Purple
-                </label>
-              </div>
+              <ThemeButton color='red' />
+              <ThemeButton color='green' />
+              <ThemeButton color='purple' />
             </div>
-
             <div>
-              <div>
-                <label className='form-control'>
-                  <input
-                    type='radio'
-                    name='theme'
-                    id='theme-orange'
-                    data-theme='orange'
-                    onChange={(e) => changeTheme(e)}
-                  />
-                  Orange
-                </label>
-              </div>
-              <div>
-                <label className='form-control'>
-                  <input
-                    type='radio'
-                    name='theme'
-                    id='theme-blue'
-                    data-theme='blue'
-                    onChange={(e) => changeTheme(e)}
-                  />
-                  Blue
-                </label>
-              </div>
-              <div>
-                <label className='form-control'>
-                  <input
-                    type='radio'
-                    name='theme'
-                    id='theme-black'
-                    data-theme='black'
-                    onChange={(e) => changeTheme(e)}
-                  />
-                  Black
-                </label>
-              </div>
+              <ThemeButton color='orange' />
+              <ThemeButton color='blue' />
+              <ThemeButton color='black' />
             </div>
           </div>
           <button
@@ -375,20 +238,7 @@ function App() {
             <p>Download</p>
           </button>
         </div>
-        <div className='note'>
-          <ol>
-            <li>
-              Top 10 tracks based on the last 28 days of your listening history.
-            </li>
-            <li>
-              Click a track to play a 30-second preview (some tracks may not
-              have a preview available).
-            </li>
-            <li>
-              To stop the preview, click the track again or press the ESC key.
-            </li>
-          </ol>
-        </div>
+        <Note />
       </div>
     </div>
   );

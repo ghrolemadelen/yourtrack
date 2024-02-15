@@ -10,9 +10,6 @@ export const exportAsImage = async (el, imageFileName) => {
 };
 
 const downloadImage = (blob, fileName) => {
-  if (screen.width < 1024) {
-    document.getElementById('viewport').setAttribute('content', 'width=1200px');
-  }
   const fakeLink = window.document.createElement('a');
   fakeLink.style = 'display:none';
   fakeLink.download = fileName;

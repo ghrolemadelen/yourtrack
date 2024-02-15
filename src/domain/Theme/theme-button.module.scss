@@ -1,0 +1,52 @@
+.form-control {
+  display: grid;
+  grid-template-columns: 1em auto;
+  gap: 0.5em;
+
+  line-height: 1.1;
+  font-size: 1.25rem;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+input[type='radio'] {
+  display: grid;
+  place-content: center;
+  margin: 0;
+
+  background-color: #fff;
+
+  font: inherit;
+  width: 1.15em;
+  height: 1.15em;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &::before {
+    width: 0.65em;
+    height: 0.65em;
+
+    border-radius: 5px;
+    transform: scale(0);
+    box-shadow: inset 1em 1em var(--primary);
+
+    transition: transform 0.15s ease-in-out;
+    content: '';
+  }
+
+  &:checked {
+    border: 2px solid var(--primary);
+
+    &::before {
+      transform: scale(1);
+    }
+  }
+}
