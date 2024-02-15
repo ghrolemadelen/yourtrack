@@ -1,0 +1,44 @@
+.header {
+  margin-left: 8px;
+  font-weight: 800;
+
+  .info {
+    display: flex;
+    justify-content: space-between;
+
+    margin-bottom: 2rem;
+
+    text-transform: uppercase;
+    color: var(--color-gray);
+    font-size: 0.85rem;
+    font-weight: 500;
+
+    .handle {
+      display: block;
+      width: fit-content;
+
+      font-size: 0.85rem;
+      font-weight: 500;
+
+      a {
+        display: inline-block;
+
+        padding: 2px 8px;
+
+        color: inherit;
+        border: 1px solid #999;
+        border-radius: 50px;
+
+        text-decoration: none;
+
+        transition: all 0.2s ease;
+
+        &:hover {
+          border: 1px solid var(--primary);
+          color: var(--primary);
+          filter: contrast(0.5);
+        }
+      }
+    }
+  }
+}

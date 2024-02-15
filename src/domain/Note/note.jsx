@@ -1,6 +1,6 @@
 import styles from './Note.module.scss';
 
-export const Note = () => {
+const Note = () => {
   return (
     <div className={styles.note}>
       <ol>
@@ -18,3 +18,5 @@ export const Note = () => {
     </div>
   );
 };
+
+export default Note;

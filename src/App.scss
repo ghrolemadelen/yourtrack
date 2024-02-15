@@ -176,15 +176,6 @@
   opacity: 0.3;
 }
 
-.footer {
-  text-align: center;
-  font-size: 12px;
-}
-
-.footer a {
-  color: inherit;
-}
-
 @keyframes nowPlaying {
   0% {
     transform: translateX(0px);
@@ -216,22 +207,6 @@
 }
 
 #trend {
-  h2 {
-    margin-left: 8px;
-    font-weight: 800;
-
-    .info {
-      display: flex;
-      justify-content: space-between;
-
-      margin-bottom: 2rem;
-
-      text-transform: uppercase;
-      color: var(--color-gray);
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
-  }
 }
 
 .btn-save {
@@ -262,51 +237,6 @@
 
   flex-direction: column;
   gap: 2rem;
-
-  .themes {
-    width: 15rem;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    font-size: 1.25rem;
-
-    & > div {
-      display: flex;
-      flex-direction: column;
-
-      gap: 1rem;
-    }
-  }
-}
-
-.handle {
-  display: block;
-  width: fit-content;
-
-  font-size: 0.85rem;
-  font-weight: 500;
-
-  a {
-    display: inline-block;
-
-    padding: 2px 8px;
-
-    color: inherit;
-    border: 1px solid #999;
-    border-radius: 50px;
-
-    text-decoration: none;
-
-    transition: all 0.2s ease;
-
-    &:hover {
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      filter: contrast(0.5);
-    }
-  }
 }
 
 .section-wrapper {

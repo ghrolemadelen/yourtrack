@@ -1,9 +1,8 @@
-import React from 'react';
-import styles from './theme-button.module.scss';
+import styles from './theme.module.scss';
+import PropTypes from 'prop-types';
 
-const ThemeButton = ({ color }) => {
+const ThemeButton = ({ color, index }) => {
   const changeTheme = (e) => {
-    const theme = e.target.dataset.theme;
     const themeColors = {
       blue: { primary: '#6ec1ff' },
       red: { primary: '#ff9898' },
@@ -13,6 +12,7 @@ const ThemeButton = ({ color }) => {
       purple: { primary: '#e16fe1' },
     };
 
+    const theme = e.target.dataset.theme;
     document.documentElement.style.setProperty(
       '--primary',
       themeColors[theme].primary
@@ -24,7 +24,7 @@ const ThemeButton = ({ color }) => {
   };
 
   return (
-    <div>
+    <div key={index}>
       <label className={styles['form-control']}>
         <input
           type='radio'
@@ -37,6 +37,11 @@ const ThemeButton = ({ color }) => {
       </label>
     </div>
   );
+};
+
+ThemeButton.propTypes = {
+  color: PropTypes.string.isRequired,
+  index: PropTypes.string,
 };
 
 export default ThemeButton;
