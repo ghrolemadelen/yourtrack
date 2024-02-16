@@ -1,4 +1,4 @@
-import styles from './Note.module.scss';
+import styles from './note.module.scss';
 
 const Note = () => {
   return (
