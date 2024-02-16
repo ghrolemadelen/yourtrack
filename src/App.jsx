@@ -5,10 +5,10 @@ import { fetchTracks, fetchAudioPreview, fetchProfile } from './lib/fetch-data';
 import { getAccessToken, redirectToAuthCodeFlow, code } from './lib/auth-pkce';
 
 import { trackTemplate } from './domain/Track/track-template';
-import Footer from './domain/Footer/footer';
-import Header from './domain/Header/header';
-import Note from './domain/Note/note';
 import Theme from './domain/Theme/theme';
+import Note from './domain/Note/note';
+import Header from './domain/Header/header';
+import Footer from './domain/Footer/footer';
 
 import styles from './domain/Header/header.module.scss';
 import './App.scss';
@@ -142,7 +142,10 @@ function App() {
           <Theme />
           <button
             className={'btn-save'}
-            onClick={() => exportAsImage(exportRef.current, 'yourtrack')}>
+            onClick={() => {
+              stopAudio();
+              exportAsImage(exportRef.current, 'yourtrack');
+            }}>
             <p>Download</p>
           </button>
         </div>
