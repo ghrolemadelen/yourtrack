@@ -1,16 +1,16 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { exportAsImage } from '@/lib/exportAsImage';
-import { expiryInMinutes } from '@/lib/expiry';
-import { fetchTracks, fetchAudioPreview, fetchProfile } from '@/lib/fetch-data';
-import { getAccessToken, redirectToAuthCodeFlow, code } from '@/lib/auth-pkce';
+import { exportAsImage } from './lib/exportAsImage';
+import { expiryInMinutes } from './lib/expiry';
+import { fetchTracks, fetchAudioPreview, fetchProfile } from './lib/fetch-data';
+import { getAccessToken, redirectToAuthCodeFlow, code } from './lib/auth-pkce';
 
-import { trackTemplate } from '@/domain/Track/track-template';
-import Note from '@/domain/Note/Note';
-import Theme from '@/domain/Theme/theme';
-import Header from '@/domain/Header/header';
-import Footer from '@/domain/Footer/footer';
+import { trackTemplate } from './domain/Track/track-template';
+import Note from './domain/Note/Note';
+import Theme from './domain/Theme/theme';
+import Header from './domain/Header/header';
+import Footer from './domain/Footer/footer';
 
-import styles from '@/domain/Header/header.module.scss';
+import styles from './domain/Header/header.module.scss';
 import './App.scss';
 
 function App() {
