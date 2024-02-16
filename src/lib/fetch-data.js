@@ -1,4 +1,5 @@
 export async function fetchTracks(token) {
+  console.log('[Calling fetchTracks]');
   const request = {
     method: 'GET',
     headers: { Authorization: `Bearer ${token}` },
@@ -11,6 +12,7 @@ export async function fetchTracks(token) {
 }
 
 export async function fetchAudioPreview(id, token) {
+  console.log('[Calling fetchAudioPreview]');
   const result = await fetch(`https://api.spotify.com/v1/tracks/${id}`, {
     method: 'GET',
     headers: { Authorization: `Bearer ${token}` },
@@ -20,6 +22,7 @@ export async function fetchAudioPreview(id, token) {
 }
 
 export async function fetchProfile(token) {
+  console.log('[Calling fetchProfile]');
   const request = {
     method: 'GET',
     headers: { Authorization: `Bearer ${token}` },

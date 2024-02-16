@@ -1,30 +1,31 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { exportAsImage } from '@lib/exportAsImage';
-import { fetchTracks, fetchAudioPreview, fetchProfile } from '@lib/fetch-data';
-import { getAccessToken, redirectToAuthCodeFlow, code } from '@lib/auth-pkce';
-import { expiryInMinutes } from '@lib/expiry';
-import Note from '@domain/Note/Note';
-import Theme from '@domain/Theme/theme';
-import Footer from '@domain/Footer/footer';
-import Header from '@domain/Header/header';
+import { exportAsImage } from '@/lib/exportAsImage';
+import { expiryInMinutes } from '@/lib/expiry';
+import { fetchTracks, fetchAudioPreview, fetchProfile } from '@/lib/fetch-data';
+import { getAccessToken, redirectToAuthCodeFlow, code } from '@/lib/auth-pkce';
 
-import styles from './domain/Header/header.module.scss';
+import { trackTemplate } from '@/domain/Track/track-template';
+import Note from '@/domain/Note/Note';
+import Theme from '@/domain/Theme/theme';
+import Header from '@/domain/Header/header';
+import Footer from '@/domain/Footer/footer';
+
+import styles from '@/domain/Header/header.module.scss';
 import './App.scss';
 
 function App() {
   const exportRef = useRef(null);
-  const tok = useRef(null);
-  let currentlyPlayingAudio = useRef(null);
-  let currentlyPlayingElement = useRef(null);
-  let timeoutRef = useRef(null);
+  const currentlyPlayingAudio = useRef(null);
+  const currentlyPlayingElement = useRef(null);
+  const timeoutRef = useRef(null);
 
   const fetchData = useCallback(async () => {
     const token = await getAccessToken();
     const tracks = await fetchTracks(token);
     const profile = await fetchProfile(token);
     checkExpiry(tracks);
+    saveTracksToLocalStorage(tracks, token);
     populateUI(profile, tracks);
-    tok.current = token;
   }, []);
 
   useEffect(() => {
@@ -63,25 +64,40 @@ function App() {
     }
   }
 
-  const calculateTrackDuration = (ms) => {
-    let min = ms / 1000 / 60;
-    let sec = Math.round((min - Math.floor(min)) * 60);
-    min = Math.floor(min);
-    sec = sec.toString().padStart(2, '0');
-    return [min, sec];
-  };
-
   function checkExpiry(tracks) {
     const now = new Date();
-    tracks.items.forEach((track) => {
-      const id = track.id;
+    tracks.items.forEach(({ id }) => {
       if (localStorage.getItem(id)) {
-        const expiry = localStorage.getItem(id).expiry;
+        const expiry = JSON.parse(localStorage.getItem(id)).expiry;
         if (now.getTime() > expiry) {
           localStorage.removeItem(id);
         }
       }
     });
+  }
+
+  function saveTracksToLocalStorage(tracks, token) {
+    tracks.items.forEach(async ({ id }) => {
+      if (localStorage.getItem(id) === null) {
+        const { preview_url } = await fetchAudioPreview(id, token);
+        const expiry = expiryInMinutes();
+        localStorage.setItem(id, JSON.stringify({ url: preview_url, expiry }));
+      }
+    });
+  }
+
+  async function handleTrackPreview(e) {
+    let notSameTrack = currentlyPlayingElement.current !== e.currentTarget;
+
+    stopAudio();
+    if (notSameTrack) {
+      e.currentTarget.classList.add('active');
+      const { url } = JSON.parse(
+        localStorage.getItem(e.currentTarget.dataset.id)
+      );
+      currentlyPlayingAudio.current = playAudio(url);
+      currentlyPlayingElement.current = e.currentTarget;
+    }
   }
 
   function populateUI(profile, tracks) {
@@ -91,51 +107,17 @@ function App() {
     }
 
     const ol = document.getElementById('tracks');
-    tracks.items.forEach(function (track, index) {
-      const { id, album, artists, name: title } = track;
-      const [min, sec] = calculateTrackDuration(track.duration_ms);
-
+    tracks.items.forEach(({ id, album, artists, name, duration_ms }, index) => {
       const li = document.createElement('li');
       li.setAttribute('data-id', id);
-      li.innerHTML = `
-      <div class="track">
-        <div class="track-rank">
-        <span class="track-bg"></span>
-        <span class="number">
-        ${index + 1}
-        </span>
-        </div>
-        <img src="${album.images[1].url}" /> 
-        <div class="wrapper">
-          <div class="song">  
-            <span class="song-title">${title}</span>
-            <span class="song-artist">${artists[0].name}</span>
-          </div>
-          <div class="song-duration">${min}:${sec}</div>
-        </div>
-      </div>`;
-
-      li.addEventListener('click', async function () {
-        if (currentlyPlayingElement.current === this) {
-          stopAudio();
-          currentlyPlayingElement.current = null;
-        } else {
-          stopAudio();
-          li.classList.add('active');
-          // @hack: this is temporary so that I don't call API anymore
-          let item = localStorage.getItem(li.dataset.id);
-          if (!item) {
-            const { preview_url: audioURL } = await fetchAudioPreview(
-              id,
-              tok.current
-            );
-            localStorage.setItem(li.dataset.id, audioURL);
-            item = audioURL;
-          }
-          currentlyPlayingAudio.current = playAudio(item);
-          currentlyPlayingElement.current = this;
-        }
+      li.innerHTML = trackTemplate(index, {
+        album,
+        artists,
+        name,
+        duration_ms,
       });
+
+      li.addEventListener('click', (e) => handleTrackPreview(e));
       ol.append(li);
     });
   }
