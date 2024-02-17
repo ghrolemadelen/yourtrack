@@ -43,7 +43,7 @@ $ pnpm install
 ### Run the Application
 
 ```sh
-$ pnpm start
+$ pnpm run dev
 ```
 
 ## License
