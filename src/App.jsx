@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { exportAsImage } from './lib/exportAsImage';
-import { expiryInMinutes } from './lib/expiry';
+import { checkExpiry, expiryInMinutes } from './lib/expiry';
 import { fetchTracks, fetchAudioPreview, fetchProfile } from './lib/fetch-data';
 import { getAccessToken, redirectToAuthCodeFlow, code } from './lib/auth-pkce';
 
@@ -14,10 +14,11 @@ import styles from './domain/Header/header.module.scss';
 import './App.scss';
 
 function App() {
-  const exportRef = useRef(null);
   const currentlyPlayingAudio = useRef(null);
   const currentlyPlayingElement = useRef(null);
+  const exportRef = useRef(null);
   const timeoutRef = useRef(null);
+  const tracksRef = useRef(null);
 
   const fetchData = useCallback(async () => {
     const token = await getAccessToken();
@@ -29,8 +30,18 @@ function App() {
   }, []);
 
   useEffect(() => {
-    document.querySelector('#theme-blue').checked = true;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') stopAudio();
+    };
 
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
     if (code) {
       fetchData();
     } else {
@@ -64,26 +75,18 @@ function App() {
     }
   }
 
-  function checkExpiry(tracks) {
-    const now = new Date();
-    tracks.items.forEach(({ id }) => {
-      if (localStorage.getItem(id)) {
-        const expiry = JSON.parse(localStorage.getItem(id)).expiry;
-        if (now.getTime() > expiry) {
-          localStorage.removeItem(id);
-        }
-      }
-    });
-  }
+  async function saveTracksToLocalStorage(tracks, token) {
+    const itemsToSave = tracks.items.filter(
+      ({ id }) => localStorage.getItem(id) === null
+    );
 
-  function saveTracksToLocalStorage(tracks, token) {
-    tracks.items.forEach(async ({ id }) => {
-      if (localStorage.getItem(id) === null) {
-        const { preview_url } = await fetchAudioPreview(id, token);
-        const expiry = expiryInMinutes();
-        localStorage.setItem(id, JSON.stringify({ url: preview_url, expiry }));
-      }
+    const promises = itemsToSave.map(async ({ id }) => {
+      const { preview_url } = await fetchAudioPreview(id, token);
+      const expiry = expiryInMinutes();
+      localStorage.setItem(id, JSON.stringify({ url: preview_url, expiry }));
     });
+
+    await Promise.all(promises);
   }
 
   async function handleTrackPreview(e) {
@@ -100,33 +103,34 @@ function App() {
     }
   }
 
+  function attachEventListeners() {
+    tracksRef.current.addEventListener('click', (e) => {
+      const listItem = e.target.closest('li');
+      if (listItem) {
+        handleTrackPreview({ currentTarget: listItem });
+      }
+    });
+  }
+
   function populateUI(profile, tracks) {
     const handle = document.querySelector(`.${styles.handle}`);
     if (handle && profile) {
       handle.innerHTML = `<a href="${profile.external_urls?.spotify}">@${profile.display_name}</a>`;
     }
 
-    const ol = document.getElementById('tracks');
     tracks.items.forEach(({ id, album, artists, name, duration_ms }, index) => {
       const li = document.createElement('li');
-      li.setAttribute('data-id', id);
-      li.innerHTML = trackTemplate(index, {
-        album,
-        artists,
-        name,
-        duration_ms,
-      });
+      li.dataset.id = id;
+      li.insertAdjacentHTML(
+        'beforeend',
+        trackTemplate(index, { album, artists, name, duration_ms })
+      );
 
-      li.addEventListener('click', (e) => handleTrackPreview(e));
-      ol.append(li);
+      tracksRef.current.append(li);
     });
-  }
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      stopAudio();
-    }
-  });
+    attachEventListeners();
+  }
 
   return (
     <div className='main'>
@@ -134,7 +138,9 @@ function App() {
         ref={exportRef}
         id='trend'>
         <Header />
-        <ol id='tracks'></ol>
+        <ol
+          ref={tracksRef}
+          id='tracks'></ol>
         <Footer />
       </div>
       <div className='section-wrapper'>

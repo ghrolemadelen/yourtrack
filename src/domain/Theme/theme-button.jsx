@@ -32,6 +32,7 @@ const ThemeButton = ({ color, index }) => {
           id={`theme-${color}`}
           data-theme={color}
           onChange={(e) => changeTheme(e)}
+          defaultChecked={color === 'blue'}
         />
         {capitalize(color)}
       </label>
