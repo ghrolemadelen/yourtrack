@@ -2,32 +2,24 @@
   padding: 0;
   margin: 0;
 }
-:root {
-  --color-text: #111;
-  --color-gray: #333;
-  --color-white: #eee;
-  --shadow: #ccc;
-  --color-bg: rgba(0, 0, 0, 0.8);
-  --primary: #6ec1ff;
-}
 
 .main {
   display: flex;
   align-items: center;
   justify-content: space-between;
 
+  max-width: 768px;
   margin-inline: auto;
   padding: 2rem 1rem;
 
-  @media (min-width: 769px) {
+  @media screen and (min-width: calc(769/16*1em)) {
     justify-content: center;
     gap: 4rem;
   }
-  @media (max-width: 768px) {
+
+  @media screen and (max-width: calc(768/16*1em)) {
     flex-direction: column;
     gap: 2rem;
-
-    max-width: 768px;
   }
 }
 
@@ -60,23 +52,29 @@
 
     margin-bottom: 1.1rem;
 
-    transition: all 0.2s;
+    transition: box-shadow 0.2s;
 
     &.active {
       img {
         background-color: var(--primary);
-        box-shadow: 0 0 5px 0 rgb(156, 156, 156);
+        box-shadow: 0 0 5px 0 var(--shadow);
       }
 
       .track-rank {
         width: 45px;
 
+        background-color: inherit;
         border-radius: 10px 0 0 10px;
-        box-shadow: 0 0 5px 0 rgb(156, 156, 156);
+        box-shadow: 0 0 5px 0 var(--shadow);
       }
 
       .track-bg {
-        background: linear-gradient(to right, #fff, var(--primary), #fff);
+        background: linear-gradient(
+          to right,
+          var(--color-white),
+          var(--primary),
+          var(--color-white)
+        );
 
         animation: nowPlaying 0.6s alternate infinite;
       }
@@ -127,12 +125,12 @@
         background-color: var(--color-bg);
         border-radius: 20px 0 0 20px;
 
-        color: white;
+        color: var(--color-white);
         font-size: 14px;
         font-weight: 600;
 
         overflow: hidden;
-        transition: all 0.2s ease;
+        transition: width 0.2s, border-radius 0.2s;
       }
 
       &-bg {
@@ -220,20 +218,11 @@
   width: 500px;
   padding: 0 1rem;
 
-  @media (max-width: 768px) {
+  @media screen and (max-width: calc(768/16*1em)) {
     justify-content: center;
     align-items: center;
 
     width: auto;
-  }
-}
-
-@keyframes shake {
-  0% {
-    transform: rotateZ(5deg);
-  }
-  100% {
-    transform: rotateZ(-5deg);
   }
 }
 

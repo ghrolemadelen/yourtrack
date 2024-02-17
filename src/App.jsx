@@ -30,6 +30,12 @@ function App() {
   }, []);
 
   useEffect(() => {
+    window.addEventListener('beforeunload', () => {
+      window.location.href = window.location.origin;
+    });
+  }, []);
+
+  useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') stopAudio();
     };
