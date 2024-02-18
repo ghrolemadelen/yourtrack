@@ -8,18 +8,17 @@
   align-items: center;
   justify-content: space-between;
 
-  max-width: 768px;
   margin-inline: auto;
   padding: 2rem 1rem;
 
+  gap: 4rem;
+
   @media screen and (min-width: calc(769/16*1em)) {
     justify-content: center;
-    gap: 4rem;
   }
 
   @media screen and (max-width: calc(768/16*1em)) {
     flex-direction: column;
-    gap: 2rem;
   }
 }
 
@@ -38,9 +37,6 @@
     #ffffff55,
     transparent
   );
-
-  backdrop-filter: blur(8px);
-  z-index: 1;
 }
 
 #tracks {
@@ -80,10 +76,6 @@
       }
 
       .number {
-        display: inline-block;
-
-        font-variant-numeric: tabular-nums;
-
         z-index: 999;
       }
     }
