@@ -156,7 +156,7 @@ function App() {
             className={'btn-save'}
             onClick={() => {
               stopAudio();
-              exportAsImage(exportRef.current, 'yourtrack');
+              exportAsImage(tracksRef.current, exportRef.current, 'yourtrack');
             }}>
             <p>Download</p>
           </button>
