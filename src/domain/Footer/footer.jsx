@@ -2,7 +2,7 @@ import styles from './footer.module.scss';
 
 const Footer = () => {
   const url = 'yourtrack.vercel.app';
-  const author = 'Jii Yoo';
+  const author = 'Madelen';
 
   return (
     <div className={styles.footer}>
