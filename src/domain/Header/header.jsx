@@ -1,7 +1,7 @@
 import styles from './header.module.scss';
 
 const Header = () => {
-  const currentDate = new Date('2024-05-31T04:00:00.000Z');
+  const currentDate = new Date();
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth()+1, 0).getDate();
   let pastDate = new Date(
     new Date().setDate(new Date().getDate() - daysInMonth)
