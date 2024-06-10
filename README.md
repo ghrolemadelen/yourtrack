@@ -1,3 +1,5 @@
+> Since the quota extension has not been processed yet, only 25 users may have access to this app. If you would like to try the app, please contact me (jiiyoo@tuta.io) with your email address so that you can gain access to it.
+
 # YourTrack
 
 ![](/public/ogimage.png)
